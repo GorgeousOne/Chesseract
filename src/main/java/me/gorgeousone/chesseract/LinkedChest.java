@@ -1,23 +1,46 @@
 package me.gorgeousone.chesseract;
 
 import me.gorgeousone.chesseract.block.BlockPos;
+import org.bukkit.Bukkit;
+import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 
-public class ChestLink {
+public class LinkedChest {
 	
-	private BlockPos chest1;
-	private BlockPos chest2;
+	private BlockPos pos;
+	private Chest chest;
+	private String linkName;
 	
-	private Inventory inventory;
+	public LinkedChest(Chest chest) {
+		this.pos = new BlockPos(chest.getBlock());
+		this.chest = chest;
+	}
 	
-	public ChestLink(BlockPos chest1, BlockPos chest2) {
-		this.chest1 = chest1;
-		this.chest2 = chest2;
+	public Chest getChest() {
+		return chest;
+	}
+	
+	public BlockPos getPos() {
+		return pos;
 	}
 	
 	public Inventory getInventory() {
-		return inventory;
+		return chest.getInventory();
 	}
 	
+	/**
+	 * Get the string used for linking two chests with the same name;
+	 */
+	public String getLinkName() {
+		return linkName;
+	}
 	
+	/**
+	 * Set the string used for linking two chests with the same name;
+	 */
+	public void setLinkName(String newLinkName) {
+		String oldName = linkName;
+		linkName = newLinkName;
+		Bukkit.getPluginManager().callEvent(new ChestRenameEvent(this, oldName, newLinkName));
+	}
 }

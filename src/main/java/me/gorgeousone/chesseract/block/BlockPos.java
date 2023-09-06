@@ -1,7 +1,8 @@
-package me.gorgeousone.simplelootchests;
+package me.gorgeousone.chesseract.block;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.util.Objects;
 
@@ -14,6 +15,10 @@ public class BlockPos {
 	
 	public BlockPos(Location loc) {
 		this(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
+	
+	public BlockPos(Block block) {
+		this(block.getWorld(), block.getX(), block.getY(), block.getZ());
 	}
 	
 	public BlockPos(World world, int x, int y, int z) {
@@ -75,5 +80,15 @@ public class BlockPos {
 	@Override
 	public BlockPos clone() {
 		return new BlockPos(world, x, y, z);
+	}
+	
+	@Override
+	public String toString() {
+		return "[" +
+		       "world=" + world.getName() +
+		       ", x=" + x +
+		       ", y=" + y +
+		       ", z=" + z +
+		       ']';
 	}
 }

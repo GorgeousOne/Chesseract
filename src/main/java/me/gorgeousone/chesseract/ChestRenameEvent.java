@@ -3,7 +3,7 @@ package me.gorgeousone.chesseract;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class LinkedChestRenameEvent extends Event {
+public class ChestRenameEvent extends Event {
 	
 	private static final HandlerList HANDLERS = new HandlerList();
 	
@@ -11,7 +11,7 @@ public class LinkedChestRenameEvent extends Event {
 	private String oldName;
 	private String newName;
 	
-	public LinkedChestRenameEvent(LinkedChest chest, String oldName, String newName) {
+	public ChestRenameEvent(LinkedChest chest, String oldName, String newName) {
 		this.chest = chest;
 		this.oldName = oldName;
 		this.newName = newName;
