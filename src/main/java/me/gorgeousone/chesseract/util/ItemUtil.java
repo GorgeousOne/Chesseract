@@ -1,5 +1,6 @@
 package me.gorgeousone.chesseract.util;
 
+import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -27,5 +28,9 @@ public class ItemUtil {
 		meta.setLore(java.util.Arrays.asList(lore));
 		item.setItemMeta(meta);
 		return item;
+	}
+	
+	public static String purpoil(String text) {
+		return ChatColor.LIGHT_PURPLE + "" +  ChatColor.BOLD + text + ChatColor.RESET;
 	}
 }

@@ -93,10 +93,10 @@ public class BlockPos {
 	@Override
 	public String toString() {
 		return "[" +
-		       "world=" + world.getName() +
-		       ", x=" + x +
-		       ", y=" + y +
-		       ", z=" + z +
+		       world.getName() +
+		       ", " + x +
+		       ", " + y +
+		       ", " + z +
 		       ']';
 	}
 }

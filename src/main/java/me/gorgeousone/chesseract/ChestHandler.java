@@ -6,10 +6,11 @@ import com.google.gson.GsonBuilder;
 import me.gorgeousone.chesseract.util.BlockPos;
 import me.gorgeousone.chesseract.event.ChestRenameEvent;
 import me.gorgeousone.chesseract.gson.ChestAdapter;
+import me.gorgeousone.chesseract.util.ItemUtil;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -89,7 +90,6 @@ public class ChestHandler implements Listener {
 	public void addLinkedChest(Chest chest) {
 		LinkedChest linkedChest = new LinkedChest(chest);
 		chests.put(linkedChest.getPos(), linkedChest);
-		Bukkit.broadcastMessage("a new hand touches the beacon");
 		saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 	}
 	
@@ -120,7 +120,6 @@ public class ChestHandler implements Listener {
 			}
 			if (possibleLink.getLinkName().equals(event.getNewName())) {
 				links.put(chest, possibleLink);
-				Bukkit.broadcastMessage("linking " + chest.getPos().toString() + " to " + possibleLink.getPos().toString());
 				saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 				break;
 			}
@@ -265,10 +264,15 @@ public class ChestHandler implements Listener {
 			boolean wasRenameSuccessful = chest.setLinkName(newName);
 			
 			if (wasRenameSuccessful) {
-				player.sendMessage("Renamed chesseract to '" + newName + "'");
+				player.sendMessage("Renamed chesseract to " + ItemUtil.purpoil(newName));
+				LinkedChest link = getLink(chest);
+				
+				if (link != null) {
+					player.sendMessage("Created link to chesseract at " + ChatColor.LIGHT_PURPLE + link.getPos().toString());
+				}
 				return Arrays.asList(AnvilGUI.ResponseAction.close());
 			}
-			player.sendMessage("The name '" + newName + "' is already taken");
+			player.sendMessage("The name " + ItemUtil.purpoil(newName) + " is already taken");
 			renamingGui.text(LinkedChest.formatLinkName(newName));
 			return Collections.emptyList();
 		});
