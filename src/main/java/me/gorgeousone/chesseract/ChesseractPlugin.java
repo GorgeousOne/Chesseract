@@ -4,14 +4,32 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 public final class ChesseractPlugin extends JavaPlugin {
 	
-    ChestHandler chestHandler;
+	public static String SAVES_FILE_PATH;
+    private ChestHandler chestHandler;
     
 	@Override
 	public void onEnable() {
-		this.chestHandler = new ChestHandler(this);
+		SAVES_FILE_PATH = getDataFolder().getAbsolutePath() + "/chesseracts.json";
+		chestHandler = new ChestHandler(this);
 		registerListeners();
+		
+		createDataFolder();
+		chestHandler.loadChests(SAVES_FILE_PATH);
+	}
+	
+	private void createDataFolder() {
+		if (!getDataFolder().exists()) {
+			try {
+				Files.createDirectory(getDataFolder().toPath());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 	
 	private void registerListeners() {
@@ -23,9 +41,9 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-        this.chestHandler.disable();
+		chestHandler.saveChests(SAVES_FILE_PATH);
+        chestHandler.disable();
 	}
-	
 	
 //	private void loadCraftingRecipe() {
 //		if (!getConfig().getBoolean("crafting_recipe_enabled")) {

@@ -1,6 +1,10 @@
 package me.gorgeousone.chesseract;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.gorgeousone.chesseract.block.BlockPos;
+import me.gorgeousone.chesseract.gson.ChestAdapter;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -15,6 +19,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +51,6 @@ public class ChestHandler implements Listener {
 		
 		syncAdditions = new HashMap<>();
 		syncRemovals = new HashMap<>();
-		loadChests();
 		startChestSyncing();
 	}
 	
@@ -81,8 +89,8 @@ public class ChestHandler implements Listener {
 	public void addLinkedChest(Chest chest) {
 		LinkedChest linkedChest = new LinkedChest(chest);
 		chests.put(linkedChest.getPos(), linkedChest);
-		linkedChest.setLinkName("asdf");
 		Bukkit.broadcastMessage("a new hand touches the beacon");
+		saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 	}
 	
 	/**
@@ -94,9 +102,12 @@ public class ChestHandler implements Listener {
 	public void onChestRename(ChestRenameEvent event) {
 		LinkedChest chest = event.getChest();
 		String newName = event.getNewName();
+		BlockPos pos = chest.getPos();
 		
+		if (!chests.containsKey(pos)) {
+			chests.put(pos, chest);
+		}
 		if (isNameTaken(newName)) {
-			Bukkit.broadcastMessage(ChatColor.RED + "name taken!!!");
 			event.setCancelled(true);
 			return;
 		}
@@ -110,6 +121,7 @@ public class ChestHandler implements Listener {
 			if (possibleLink.getLinkName().equals(event.getNewName())) {
 				links.put(chest, possibleLink);
 				Bukkit.broadcastMessage("linking " + chest.getPos().toString() + " to " + possibleLink.getPos().toString());
+				saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 				break;
 			}
 		}
@@ -125,6 +137,7 @@ public class ChestHandler implements Listener {
 		syncAdditions.remove(chest);
 		unlinkChest(chest);
 		chests.remove(chest.getPos());
+		saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 	}
 	
 	/**
@@ -183,7 +196,6 @@ public class ChestHandler implements Listener {
 	/**
 	 * Sync chest item when a hooper sucks an item from a chest
 	 */
-	
 	public boolean suckChestItem(LinkedChest chest, ItemStack movedItem) {
 		LinkedChest linked = getLink(chest);
 		
@@ -194,9 +206,37 @@ public class ChestHandler implements Listener {
 		return true;
 	}
 	
-	
-	private void loadChests() {
+	public void loadChests(String jsonFilePath) {
+		if (!new File(jsonFilePath).isFile()) {
+			return;
+		}
+		chests.clear();
+		links.clear();
+		
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(LinkedChest.class, new ChestAdapter());
+		Gson gson = gsonBuilder.create();
+		
+		try (FileReader fileReader = new FileReader(jsonFilePath)) {
+			//rename listener automatically registers the chests 👉👈
+			gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	public void saveChests(String jsonFilePath) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(LinkedChest.class, new ChestAdapter());
+		Gson gson = gsonBuilder.create();
+		
+		try (Writer writer = new FileWriter(jsonFilePath)) {
+			gson.toJson(chests.values(), writer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void disable() {
 		chestSyncer.cancel();
@@ -225,7 +265,7 @@ public class ChestHandler implements Listener {
 				player.sendMessage("Renamed chesseract to '" + newName + "'");
 				return Arrays.asList(AnvilGUI.ResponseAction.close());
 			}
-			player.sendMessage("This name '" + newName + "' already taken");
+			player.sendMessage("The name '" + newName + "' is already taken");
 			renamingGui.text(LinkedChest.formatLinkName(newName));
 			return Collections.emptyList();
 		});

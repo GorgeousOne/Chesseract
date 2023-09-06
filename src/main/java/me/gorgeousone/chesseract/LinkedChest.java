@@ -43,7 +43,6 @@ public class LinkedChest {
 		newLinkName = formatLinkName(newLinkName);
 		
 		if (linkName.equals(newLinkName)) {
-			Bukkit.broadcastMessage("Suck cess");
 			return true;
 		}
 		ChestRenameEvent event = new ChestRenameEvent(this, linkName, newLinkName);
@@ -57,6 +56,6 @@ public class LinkedChest {
 	}
 	
 	public static String formatLinkName(String linkName) {
-		return linkName.toLowerCase().replaceAll("[^a-zA-Z0-9\\-_]", "");
+		return linkName.replaceAll("[^a-zA-Z0-9\\-_]", "");
 	}
 }

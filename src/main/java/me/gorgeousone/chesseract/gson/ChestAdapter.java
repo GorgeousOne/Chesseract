@@ -4,19 +4,58 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.gorgeousone.chesseract.LinkedChest;
+import me.gorgeousone.chesseract.block.BlockPos;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 
 import java.io.IOException;
 
 public class ChestAdapter extends TypeAdapter<LinkedChest> {
 	
+	private final BlockPosAdapter blockPosAdapter = new BlockPosAdapter();
+	
 	@Override
 	public void write(JsonWriter out, LinkedChest value) throws IOException {
-	
+		out.beginObject();
+		out.name("location");
+		blockPosAdapter.write(out, value.getPos());
+		out.name("linkName");
+		out.value(value.getLinkName());
+		out.endObject();
 	}
 	
 	@Override
 	public LinkedChest read(JsonReader in) throws IOException {
-		return null;
+		in.beginObject();
+		BlockPos pos = null;
+		String linkName = null;
+		
+		while (in.hasNext()) {
+			switch (in.nextName()) {
+				case "location":
+					pos = blockPosAdapter.read(in);
+					break;
+				case "linkName":
+					linkName = in.nextString();
+					break;
+			}
+		}
+		in.endObject();
+		
+		if (linkName == null) {
+			throw new IllegalArgumentException("Could not Chest chest from json. Link name is missing.");
+		}
+		BlockState state = pos.getBlock().getState();
+		
+		if (!(state instanceof Chest)) {
+			throw new IllegalArgumentException("Could not Chest chest from json. Block at " + pos + " is not a chest.");
+		}
+		LinkedChest chest = new LinkedChest((Chest) state);
+		boolean wasNamingSuccessful = chest.setLinkName(linkName);
+		
+		if (!wasNamingSuccessful) {
+			throw new IllegalArgumentException("Could not Chest chest from json. Link name " + linkName + " is already taken twice.");
+		}
+		return chest;
 	}
-	
 }

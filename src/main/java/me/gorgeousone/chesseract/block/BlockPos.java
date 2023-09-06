@@ -28,6 +28,10 @@ public class BlockPos {
 		this.z = z;
 	}
 	
+	public Block getBlock() {
+		return world.getBlockAt(x, y, z);
+	}
+	
 	public World getWorld() {
 		return world;
 	}
