@@ -218,8 +218,11 @@ public class ChestHandler implements Listener {
 		Gson gson = gsonBuilder.create();
 		
 		try (FileReader fileReader = new FileReader(jsonFilePath)) {
-			//rename listener automatically registers the chests 👉👈
-			gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
+			Set<LinkedChest> loadedChests = gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
+			
+			for (LinkedChest chest : loadedChests) {
+				chests.put(chest.getPos(), chest);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -245,11 +248,11 @@ public class ChestHandler implements Listener {
 	public void openRenameGUI(LinkedChest chest, Player player) {
 		AnvilGUI.Builder renamingGui = new AnvilGUI.Builder()
 				.plugin(chesseract)
+				.itemLeft(new ItemStack(Material.NAME_TAG))
 				.title("Set the linking name for this chesseract")
-				.text(chest.getLinkName())
-				.itemLeft(new ItemStack(Material.NAME_TAG));
+				.text(chest.getLinkName().isEmpty() ? " " : chest.getLinkName());
+		
 		renamingGui.onClick((slot, stateSnapshot) -> {
-			
 			if (slot != AnvilGUI.Slot.OUTPUT) {
 				return Collections.emptyList();
 			}

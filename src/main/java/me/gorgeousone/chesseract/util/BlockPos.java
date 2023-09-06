@@ -32,6 +32,10 @@ public class BlockPos {
 		return world.getBlockAt(x, y, z);
 	}
 	
+	public Location getLocation() {
+		return new Location(world, x, y, z);
+	}
+	
 	public World getWorld() {
 		return world;
 	}

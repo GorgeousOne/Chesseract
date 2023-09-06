@@ -27,7 +27,7 @@ public class LinkedChest {
 	}
 	
 	public Inventory getInventory() {
-		return chest.getInventory();
+		return chest.getBlockInventory();
 	}
 	
 	/**

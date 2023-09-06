@@ -1,5 +1,6 @@
 package me.gorgeousone.chesseract;
 
+import me.gorgeousone.chesseract.listener.ChestInteractListener;
 import me.gorgeousone.chesseract.listener.HopperListener;
 import me.gorgeousone.chesseract.listener.RenameListener;
 import me.gorgeousone.chesseract.util.ItemUtil;
@@ -35,6 +36,16 @@ public final class ChesseractPlugin extends JavaPlugin {
 		loadCraftingRecipe();
 	}
 	
+	@Override
+	public void onDisable() {
+		chestHandler.saveChests(SAVES_FILE_PATH);
+		chestHandler.disable();
+	}
+	
+	public ItemStack getChesseractItem() {
+		return chesseractItem.clone();
+	}
+	
 	private void createDataFolder() {
 		if (!getDataFolder().exists()) {
 			try {
@@ -47,6 +58,7 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	private void registerListeners() {
 		PluginManager manager = Bukkit.getPluginManager();
+		manager.registerEvents(new ChestInteractListener(this, this.chestHandler), this);
 		manager.registerEvents(new HopperListener(this, this.chestHandler), this);
 		manager.registerEvents(new RenameListener(this.chestHandler), this);
 		manager.registerEvents(this.chestHandler, this);
@@ -60,12 +72,6 @@ public final class ChesseractPlugin extends JavaPlugin {
 				ChatColor.DARK_PURPLE + "Funnels items to other placed in the world and even to other dimensions.",
 				ChatColor.DARK_PURPLE + "Right click to link to another chesseract.");
 		return item;
-	}
-	
-	@Override
-	public void onDisable() {
-		chestHandler.saveChests(SAVES_FILE_PATH);
-		chestHandler.disable();
 	}
 	
 	private void loadCraftingRecipe() {
