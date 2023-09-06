@@ -1,0 +1,3 @@
+name: Chesseract
+version: '${project.version}'
+main: me.gorgeousone.chesseract.Chesseract
