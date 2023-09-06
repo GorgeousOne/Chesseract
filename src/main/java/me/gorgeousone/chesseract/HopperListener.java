@@ -16,11 +16,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 
-public class ChestListener implements Listener {
+public class HopperListener implements Listener {
 	private ChesseractPlugin chesseract;
 	private ChestHandler chestHandler;
 	
-	public ChestListener(ChesseractPlugin chesseract, ChestHandler chestHandler) {
+	public HopperListener(ChesseractPlugin chesseract, ChestHandler chestHandler) {
 		this.chesseract = chesseract;
 		this.chestHandler = chestHandler;
 	}
@@ -73,7 +73,7 @@ public class ChestListener implements Listener {
 		LinkedChest chest = chestHandler.getChest(event.getBlock());
 		
 		if (chest != null) {
-			this.chestHandler.removeLinkedChest(chest);
+			this.chestHandler.destroyChest(chest);
 		}
 	}
 }

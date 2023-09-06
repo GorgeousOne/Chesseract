@@ -14,6 +14,7 @@ public class LinkedChest {
 	public LinkedChest(Chest chest) {
 		this.pos = new BlockPos(chest.getBlock());
 		this.chest = chest;
+		this.linkName = "";
 	}
 	
 	public Chest getChest() {
@@ -36,11 +37,26 @@ public class LinkedChest {
 	}
 	
 	/**
-	 * Set the string used for linking two chests with the same name;
+	 * Set the string used for linking two chests with the same name
 	 */
-	public void setLinkName(String newLinkName) {
-		String oldName = linkName;
-		linkName = newLinkName;
-		Bukkit.getPluginManager().callEvent(new ChestRenameEvent(this, oldName, newLinkName));
+	public boolean setLinkName(String newLinkName) {
+		newLinkName = formatLinkName(newLinkName);
+		
+		if (linkName.equals(newLinkName)) {
+			Bukkit.broadcastMessage("Suck cess");
+			return true;
+		}
+		ChestRenameEvent event = new ChestRenameEvent(this, linkName, newLinkName);
+		Bukkit.getPluginManager().callEvent(event);
+		
+		if (!event.isCancelled()) {
+			linkName = newLinkName;
+			return true;
+		}
+		return false;
+	}
+	
+	public static String formatLinkName(String linkName) {
+		return linkName.toLowerCase().replaceAll("[^a-zA-Z0-9\\-_]", "");
 	}
 }

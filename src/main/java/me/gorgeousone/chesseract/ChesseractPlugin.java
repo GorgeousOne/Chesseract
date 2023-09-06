@@ -16,7 +16,8 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	private void registerListeners() {
 		PluginManager manager = Bukkit.getPluginManager();
-		manager.registerEvents(new ChestListener(this, this.chestHandler), this);
+		manager.registerEvents(new HopperListener(this, this.chestHandler), this);
+		manager.registerEvents(new RenameListener(this.chestHandler), this);
 		manager.registerEvents(this.chestHandler, this);
 	}
 	
