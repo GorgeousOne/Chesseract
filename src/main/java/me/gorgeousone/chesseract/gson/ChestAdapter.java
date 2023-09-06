@@ -4,7 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.gorgeousone.chesseract.LinkedChest;
-import me.gorgeousone.chesseract.block.BlockPos;
+import me.gorgeousone.chesseract.util.BlockPos;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 

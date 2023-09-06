@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class WorldAdapter extends TypeAdapter<World> {
 	

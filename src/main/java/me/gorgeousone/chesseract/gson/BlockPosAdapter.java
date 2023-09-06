@@ -3,7 +3,7 @@ package me.gorgeousone.chesseract.gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import me.gorgeousone.chesseract.block.BlockPos;
+import me.gorgeousone.chesseract.util.BlockPos;
 import org.bukkit.World;
 
 import java.io.IOException;

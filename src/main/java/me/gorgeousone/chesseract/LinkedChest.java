@@ -1,6 +1,7 @@
 package me.gorgeousone.chesseract;
 
-import me.gorgeousone.chesseract.block.BlockPos;
+import me.gorgeousone.chesseract.util.BlockPos;
+import me.gorgeousone.chesseract.event.ChestRenameEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;

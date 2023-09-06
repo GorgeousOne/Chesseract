@@ -1,5 +1,6 @@
-package me.gorgeousone.chesseract;
+package me.gorgeousone.chesseract.event;
 
+import me.gorgeousone.chesseract.LinkedChest;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

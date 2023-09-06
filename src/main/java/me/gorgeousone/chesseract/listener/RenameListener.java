@@ -1,5 +1,7 @@
-package me.gorgeousone.chesseract;
+package me.gorgeousone.chesseract.listener;
 
+import me.gorgeousone.chesseract.ChestHandler;
+import me.gorgeousone.chesseract.LinkedChest;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

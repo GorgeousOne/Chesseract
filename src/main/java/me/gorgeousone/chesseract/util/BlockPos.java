@@ -1,4 +1,4 @@
-package me.gorgeousone.chesseract.block;
+package me.gorgeousone.chesseract.util;
 
 import org.bukkit.Location;
 import org.bukkit.World;
