@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import me.gorgeousone.chesseract.util.BlockPos;
 import me.gorgeousone.chesseract.event.ChestRenameEvent;
 import me.gorgeousone.chesseract.gson.ChestAdapter;
+import me.gorgeousone.chesseract.util.BlockUtil;
 import me.gorgeousone.chesseract.util.ItemUtil;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.commons.collections4.BidiMap;
@@ -13,10 +14,9 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * Loads chests and manages them
  */
-public class ChestHandler implements Listener {
+public class ChestHandler {
 	private final ChesseractPlugin chesseract;
 	private BukkitRunnable chestSyncer;
 	
@@ -78,8 +78,7 @@ public class ChestHandler implements Listener {
 	}
 	
 	public LinkedChest getChest(Block block) {
-		BlockPos pos = new BlockPos(block);
-		return chests.get(pos);
+		return chests.get(new BlockPos(block));
 	}
 	
 	public LinkedChest getChest(Chest chest) {
@@ -87,29 +86,36 @@ public class ChestHandler implements Listener {
 		return getChest(block);
 	}
 	
-	public void addLinkedChest(Chest chest) {
+	/**
+	 * Adds a chesseract if no other chests are around this chest
+	 */
+	public boolean addChest(Chest chest) {
 		LinkedChest linkedChest = new LinkedChest(chest);
+		
+		if (BlockUtil.isChestNearby(chest.getBlock())) {
+			return false;
+		}
 		chests.put(linkedChest.getPos(), linkedChest);
 		saveChests(ChesseractPlugin.SAVES_FILE_PATH);
+		return true;
+	}
+	
+	public boolean isChesseractNearby(Block block) {
+		for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
+			if (getChest(block.getRelative(face)) != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
-	 * Verifies if the given name is already used by 2 chests.
+	 * Verifies if the given name is not already used by 2 chests.
 	 * Establishes link if the new name is already used by 1 chest.
-	 * @param event
 	 */
-	@EventHandler
-	public void onChestRename(ChestRenameEvent event) {
-		LinkedChest chest = event.getChest();
-		String newName = event.getNewName();
-		BlockPos pos = chest.getPos();
-		
-		if (!chests.containsKey(pos)) {
-			chests.put(pos, chest);
-		}
+	public boolean renameChest(LinkedChest chest, String newName) {
 		if (isNameTaken(newName)) {
-			event.setCancelled(true);
-			return;
+			return false;
 		}
 		links.removeValue(chest);
 		links.remove(chest);
@@ -118,12 +124,13 @@ public class ChestHandler implements Listener {
 			if (possibleLink == chest) {
 				continue;
 			}
-			if (possibleLink.getLinkName().equals(event.getNewName())) {
+			if (possibleLink.getLinkName().equals(newName)) {
 				links.put(chest, possibleLink);
 				saveChests(ChesseractPlugin.SAVES_FILE_PATH);
 				break;
 			}
 		}
+		return true;
 	}
 	
 	/**
@@ -220,7 +227,12 @@ public class ChestHandler implements Listener {
 			Set<LinkedChest> loadedChests = gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
 			
 			for (LinkedChest chest : loadedChests) {
-				chests.put(chest.getPos(), chest);
+				String linkName = chest.getLinkName();
+				chest.setLinkName("");
+				
+				if (addChest(chest.getChest())) {
+					renameChest(chest, linkName);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -261,7 +273,7 @@ public class ChestHandler implements Listener {
 				player.sendMessage("Please enter a valid name");
 				return Collections.emptyList();
 			}
-			boolean wasRenameSuccessful = chest.setLinkName(newName);
+			boolean wasRenameSuccessful = renameChest(chest, newName);
 			
 			if (wasRenameSuccessful) {
 				player.sendMessage("Renamed chesseract to " + ItemUtil.purpoil(newName));

@@ -61,7 +61,6 @@ public final class ChesseractPlugin extends JavaPlugin {
 		manager.registerEvents(new ChestInteractListener(this, this.chestHandler), this);
 		manager.registerEvents(new HopperListener(this, this.chestHandler), this);
 		manager.registerEvents(new RenameListener(this.chestHandler), this);
-		manager.registerEvents(this.chestHandler, this);
 	}
 	
 	ItemStack createChesseractItem() {

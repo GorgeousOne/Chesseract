@@ -50,12 +50,6 @@ public class ChestAdapter extends TypeAdapter<LinkedChest> {
 		if (!(state instanceof Chest)) {
 			throw new IllegalArgumentException("Could not Chest chest from json. Block at " + pos + " is not a chest.");
 		}
-		LinkedChest chest = new LinkedChest((Chest) state);
-		boolean wasNamingSuccessful = chest.setLinkName(linkName);
-		
-		if (!wasNamingSuccessful) {
-			throw new IllegalArgumentException("Could not Chest chest from json. Link name " + linkName + " is already taken twice.");
-		}
-		return chest;
+		return new LinkedChest((Chest) state);
 	}
 }

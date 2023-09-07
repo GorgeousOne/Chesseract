@@ -40,20 +40,8 @@ public class LinkedChest {
 	/**
 	 * Set the string used for linking two chests with the same name
 	 */
-	public boolean setLinkName(String newLinkName) {
-		newLinkName = formatLinkName(newLinkName);
-		
-		if (linkName.equals(newLinkName)) {
-			return true;
-		}
-		ChestRenameEvent event = new ChestRenameEvent(this, linkName, newLinkName);
-		Bukkit.getPluginManager().callEvent(event);
-		
-		if (!event.isCancelled()) {
-			linkName = newLinkName;
-			return true;
-		}
-		return false;
+	public void setLinkName(String newLinkName) {
+		linkName = formatLinkName(newLinkName);
 	}
 	
 	public static String formatLinkName(String linkName) {
