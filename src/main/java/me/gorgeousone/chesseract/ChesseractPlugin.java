@@ -81,10 +81,10 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	private void registerListeners() {
 		PluginManager manager = Bukkit.getPluginManager();
-		manager.registerEvents(new ChestInteractListener(this, this.chestHandler), this);
-		manager.registerEvents(new HopperListener(this, this.chestHandler), this);
-		manager.registerEvents(new RenameListener(this.chestHandler), this);
-		manager.registerEvents(new EnderPearlListener(this, this.chestHandler), this);
+		manager.registerEvents(new ChestInteractListener(this, chestHandler), this);
+		manager.registerEvents(new HopperListener(chestHandler), this);
+		manager.registerEvents(new RenameListener(chestHandler), this);
+		manager.registerEvents(new EnderPearlListener(this, chestHandler), this);
 	}
 	
 	ItemStack createChesseractItem() {

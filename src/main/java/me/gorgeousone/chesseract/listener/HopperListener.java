@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public class HopperListener implements Listener {
 	private ChestHandler chestHandler;
 	
-	public HopperListener(ChesseractPlugin chesseract, ChestHandler chestHandler) {
+	public HopperListener(ChestHandler chestHandler) {
 		this.chestHandler = chestHandler;
 	}
 	

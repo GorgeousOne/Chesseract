@@ -11,7 +11,7 @@ public class LinkedChest {
 	private BlockPos pos;
 	private Chest chest;
 	private String linkName;
-	
+
 	public LinkedChest(Chest chest) {
 		this.pos = new BlockPos(chest.getBlock());
 		this.chest = chest;

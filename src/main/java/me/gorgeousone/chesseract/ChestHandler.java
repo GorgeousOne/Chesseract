@@ -27,7 +27,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,8 +38,8 @@ public class ChestHandler {
 	private BukkitRunnable chestSyncer;
 	private BukkitRunnable particleSpawner;
 	
-	private final Map<LinkedChest, Set<ItemStack>> syncAdditions;
-	private final Map<LinkedChest, Set<ItemStack>> syncRemovals;
+	private final Map<LinkedChest, ItemStack> syncAdditions;
+	private final Map<LinkedChest, ItemStack> syncRemovals;
 	
 	BidiMap<LinkedChest, LinkedChest> links;
 	private final Map<BlockPos, LinkedChest> chests;
@@ -58,17 +57,19 @@ public class ChestHandler {
 	
 	public void startChestSyncing() {
 		chestSyncer = new BukkitRunnable() {
+			int i = 0;
+			
 			@Override
 			public void run() {
+				++i;
+				if (!syncAdditions.isEmpty() || !syncRemovals.isEmpty()) {
+					System.out.println(i);
+				}
 				for (LinkedChest chest : syncAdditions.keySet()) {
-					for (ItemStack item : syncAdditions.get(chest)) {
-						chest.getInventory().addItem(item);
-					}
+					chest.getInventory().addItem(syncAdditions.get(chest));
 				}
 				for (LinkedChest chest : syncRemovals.keySet()) {
-					for (ItemStack item : syncRemovals.get(chest)) {
-						chest.getInventory().removeItem(item);
-					}
+					chest.getInventory().removeItem(syncRemovals.get(chest));
 				}
 				syncAdditions.clear();
 				syncRemovals.clear();
@@ -230,12 +231,12 @@ public class ChestHandler {
 	 * Sync chest item when a hooper moves an item into a chest
 	 */
 	public boolean funnelChestItem(LinkedChest chest, ItemStack movedItem) {
-		LinkedChest linked = getLink(chest);
+		LinkedChest link = getLink(chest);
 
-		if (linked == null) {
+		if (link == null) {
 			return false;
 		}
-		syncAdditions.computeIfAbsent(linked, c -> new HashSet<>()).add(movedItem);
+		syncAdditions.put(link, movedItem);
 		return true;
 	}
 	
@@ -243,12 +244,15 @@ public class ChestHandler {
 	 * Sync chest item when a hooper sucks an item from a chest
 	 */
 	public boolean suckChestItem(LinkedChest chest, ItemStack movedItem) {
-		LinkedChest linked = getLink(chest);
+		LinkedChest link = getLink(chest);
 		
-		if (linked == null) {
+		if (link == null) {
 			return false;
 		}
-		syncRemovals.computeIfAbsent(linked, c -> new HashSet<>()).add(movedItem);
+		if (syncRemovals.containsKey(chest)) {
+			return false;
+		}
+		syncRemovals.put(link, movedItem);
 		return true;
 	}
 	
