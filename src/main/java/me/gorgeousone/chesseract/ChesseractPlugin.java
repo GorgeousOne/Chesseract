@@ -1,6 +1,7 @@
 package me.gorgeousone.chesseract;
 
 import me.gorgeousone.chesseract.listener.ChestInteractListener;
+import me.gorgeousone.chesseract.listener.EnderPearlListener;
 import me.gorgeousone.chesseract.listener.HopperListener;
 import me.gorgeousone.chesseract.listener.RenameListener;
 import me.gorgeousone.chesseract.util.ItemUtil;
@@ -60,6 +61,7 @@ public final class ChesseractPlugin extends JavaPlugin {
 		manager.registerEvents(new ChestInteractListener(this, this.chestHandler), this);
 		manager.registerEvents(new HopperListener(this, this.chestHandler), this);
 		manager.registerEvents(new RenameListener(this.chestHandler), this);
+		manager.registerEvents(new EnderPearlListener(this, this.chestHandler), this);
 	}
 	
 	ItemStack createChesseractItem() {
