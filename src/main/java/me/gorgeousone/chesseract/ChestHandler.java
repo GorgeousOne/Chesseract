@@ -57,14 +57,8 @@ public class ChestHandler {
 	
 	public void startChestSyncing() {
 		chestSyncer = new BukkitRunnable() {
-			int i = 0;
-			
 			@Override
 			public void run() {
-				++i;
-				if (!syncAdditions.isEmpty() || !syncRemovals.isEmpty()) {
-					System.out.println(i);
-				}
 				for (LinkedChest chest : syncAdditions.keySet()) {
 					chest.getInventory().addItem(syncAdditions.get(chest));
 				}

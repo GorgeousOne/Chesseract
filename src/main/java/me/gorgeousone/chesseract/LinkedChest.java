@@ -8,26 +8,24 @@ import org.bukkit.inventory.Inventory;
 
 public class LinkedChest {
 	
-	private BlockPos pos;
-	private Chest chest;
+	private final BlockPos pos;
 	private String linkName;
 
 	public LinkedChest(Chest chest) {
 		this.pos = new BlockPos(chest.getBlock());
-		this.chest = chest;
 		this.linkName = "";
-	}
-	
-	public Chest getChest() {
-		return chest;
 	}
 	
 	public BlockPos getPos() {
 		return pos.clone();
 	}
 	
+	/**
+	 * Returns the inventory of the blocks current state. Which is important.
+	 * Idk if this ever throws in case the block is not a chest anymore.
+	 */
 	public Inventory getInventory() {
-		return chest.getBlockInventory();
+		return ((Chest) pos.getBlock().getState()).getBlockInventory();
 	}
 	
 	/**
