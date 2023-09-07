@@ -9,6 +9,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
@@ -40,6 +43,26 @@ public final class ChesseractPlugin extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		chestHandler.disable();
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!command.getName().equalsIgnoreCase("chesseract")) {
+			return false;
+		}
+		if (!sender.isOp()) {
+			return false;
+		}
+		if (!(sender instanceof Player)) {
+			sender.sendMessage(ChatColor.RED + "You must be a player to use this command.");
+			return true;
+		}
+		if (args.length < 1 || !args[0].equalsIgnoreCase("give")) {
+			sender.sendMessage(ChatColor.RED + "Usage: /chesseract give");
+			return true;
+		}
+		((Player) sender).getInventory().addItem(chesseractItem);
+		return true;
 	}
 	
 	public ItemStack getChesseractItem() {
