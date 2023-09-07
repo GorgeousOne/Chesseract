@@ -4,8 +4,6 @@ import me.gorgeousone.chesseract.ChesseractPlugin;
 import me.gorgeousone.chesseract.ChestHandler;
 import me.gorgeousone.chesseract.LinkedChest;
 import me.gorgeousone.chesseract.util.BlockUtil;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -14,9 +12,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ChestInteractListener implements Listener {
 	
@@ -66,19 +69,28 @@ public class ChestInteractListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		LinkedChest chest = chestHandler.getChest(event.getBlock());
-		
-		if (chest == null) {
-			return;
-		}
-		chestHandler.destroyChest(chest);
+		Block block = event.getBlock();
+		removeChesseracts(Collections.singletonList(block));
 		event.setDropItems(false);
-		
-		//TODO think about removing lore from chesseract so this can be removed
-		if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
-			Location blockLoc = event.getBlock().getLocation();
-			blockLoc.add(0.5, 0.5, 0.5);
-			blockLoc.getWorld().dropItemNaturally(blockLoc, chesseract.getChesseractItem());
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onChestExplode(EntityExplodeEvent event) {
+		removeChesseracts(event.blockList());
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onChestExplode(BlockExplodeEvent event) {
+		removeChesseracts(event.blockList());
+	}
+	
+	private void removeChesseracts(List<Block> blocks)  {
+		for (Block block : blocks) {
+			LinkedChest chest = chestHandler.getChest(block);
+			
+			if (chest != null) {
+				chestHandler.destroyChest(chest);
+			}
 		}
 	}
 }

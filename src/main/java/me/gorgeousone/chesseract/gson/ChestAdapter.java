@@ -26,32 +26,37 @@ public class ChestAdapter extends TypeAdapter<LinkedChest> {
 	
 	@Override
 	public LinkedChest read(JsonReader in) throws IOException {
-		in.beginObject();
-		BlockPos pos = null;
-		String linkName = null;
-		
-		while (in.hasNext()) {
-			switch (in.nextName()) {
-				case "location":
-					pos = blockPosAdapter.read(in);
-					break;
-				case "linkName":
-					linkName = in.nextString();
-					break;
+		try {
+			in.beginObject();
+			BlockPos pos = null;
+			String linkName = null;
+			
+			while (in.hasNext()) {
+				switch (in.nextName()) {
+					case "location":
+						pos = blockPosAdapter.read(in);
+						break;
+					case "linkName":
+						linkName = in.nextString();
+						break;
+				}
 			}
+			in.endObject();
+			
+			if (linkName == null) {
+				throw new IllegalArgumentException("Could not Chest chest from json. Link name is missing.");
+			}
+			BlockState state = pos.getBlock().getState();
+			
+			if (!(state instanceof Chest)) {
+				throw new IllegalArgumentException("Could not Chest chest from json. Block at " + pos + " is not a chest.");
+			}
+			LinkedChest chest = new LinkedChest((Chest) state);
+			chest.setLinkName(linkName);
+			return chest;
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
 		}
-		in.endObject();
-		
-		if (linkName == null) {
-			throw new IllegalArgumentException("Could not Chest chest from json. Link name is missing.");
-		}
-		BlockState state = pos.getBlock().getState();
-		
-		if (!(state instanceof Chest)) {
-			throw new IllegalArgumentException("Could not Chest chest from json. Block at " + pos + " is not a chest.");
-		}
-		LinkedChest chest = new LinkedChest((Chest) state);
-		chest.setLinkName(linkName);
-		return chest;
 	}
 }

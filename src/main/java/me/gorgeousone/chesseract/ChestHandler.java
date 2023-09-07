@@ -263,6 +263,7 @@ public class ChestHandler {
 		
 		try (FileReader fileReader = new FileReader(jsonFilePath)) {
 			Set<LinkedChest> loadedChests = gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
+			loadedChests.remove(null);
 			
 			for (LinkedChest chest : loadedChests) {
 				if (addChest(chest)) {

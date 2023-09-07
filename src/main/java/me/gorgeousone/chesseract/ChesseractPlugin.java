@@ -89,11 +89,8 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	ItemStack createChesseractItem() {
 		ItemStack item = new ItemStack(Material.CHEST);
-		ItemUtil.addMagicGlow(item);
-		ItemUtil.rename(item,
-				ChatColor.LIGHT_PURPLE + "" +  ChatColor.BOLD + "Chesseract",
-				ChatColor.DARK_PURPLE + "Funnels items to other placed in the world and even to other dimensions.",
-				ChatColor.DARK_PURPLE + "Right click to link to another chesseract.");
+//		ItemUtil.addMagicGlow(item);
+		ItemUtil.rename(item, ChatColor.LIGHT_PURPLE + "" +  ChatColor.BOLD + "Chesseract");
 		return item;
 	}
 	
