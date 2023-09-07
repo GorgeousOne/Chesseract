@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.gorgeousone.chesseract.util.BlockPos;
-import me.gorgeousone.chesseract.event.ChestRenameEvent;
 import me.gorgeousone.chesseract.gson.ChestAdapter;
 import me.gorgeousone.chesseract.util.BlockUtil;
 import me.gorgeousone.chesseract.util.ItemUtil;
@@ -38,6 +37,7 @@ import java.util.Set;
 public class ChestHandler {
 	private final ChesseractPlugin chesseract;
 	private BukkitRunnable chestSyncer;
+	private BukkitRunnable particleSpawner;
 	
 	private final Map<LinkedChest, Set<ItemStack>> syncAdditions;
 	private final Map<LinkedChest, Set<ItemStack>> syncRemovals;
@@ -53,6 +53,7 @@ public class ChestHandler {
 		syncAdditions = new HashMap<>();
 		syncRemovals = new HashMap<>();
 		startChestSyncing();
+		startParticles();
 	}
 	
 	public void startChestSyncing() {
@@ -75,6 +76,28 @@ public class ChestHandler {
 			
 		};
 		chestSyncer.runTaskTimer(chesseract, 1, 1);
+	}
+	
+	public void startParticles() {
+		particleSpawner = new BukkitRunnable() {
+			float second = 20;
+			float phi = 0;
+			@Override
+			public void run() {
+				phi += 180f / second;
+				float dx = (float) Math.cos(Math.toRadians(phi));
+				float dz = (float) Math.sin(Math.toRadians(phi));
+				
+				for (LinkedChest chest : chests.values()) {
+					if (getLink(chest) == null) {
+						chest.spawnUnlinkedParticles();
+					} else {
+						chest.spawnLinkedParticles(dx, dz);
+					}
+				}
+			}
+		};
+		particleSpawner.runTaskTimer(chesseract, 1, 1);
 	}
 	
 	public LinkedChest getChest(Block block) {
@@ -100,6 +123,14 @@ public class ChestHandler {
 		return true;
 	}
 	
+	private boolean addChest(LinkedChest chest) {
+		if (BlockUtil.isChestNearby(chest.getPos().getBlock())) {
+			return false;
+		}
+		chests.put(chest.getPos(), chest);
+		return true;
+	}
+	
 	public boolean isChesseractNearby(Block block) {
 		for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
 			if (getChest(block.getRelative(face)) != null) {
@@ -114,25 +145,34 @@ public class ChestHandler {
 	 * Establishes link if the new name is already used by 1 chest.
 	 */
 	public boolean renameChest(LinkedChest chest, String newName) {
-		if (isNameTaken(newName)) {
+		newName = LinkedChest.formatLinkName(newName);
+		
+		if (isNameTaken(newName) || newName.isEmpty()) {
 			return false;
 		}
+		chest.setLinkName(newName);
 		links.removeValue(chest);
 		links.remove(chest);
 		
-		for (LinkedChest possibleLink : chests.values()) {
-			if (possibleLink == chest) {
-				continue;
-			}
-			if (possibleLink.getLinkName().equals(newName)) {
-				links.put(chest, possibleLink);
-				saveChests(ChesseractPlugin.SAVES_FILE_PATH);
-				break;
-			}
-		}
+		saveChests(ChesseractPlugin.SAVES_FILE_PATH);
+		linkChest(chest);
 		return true;
 	}
 	
+	private void linkChest(LinkedChest chest) {
+		if (chest.getLinkName().isEmpty()) {
+			return;
+		}
+		for (LinkedChest possibleLink : chests.values()) {
+			if (possibleLink.equals(chest)) {
+				continue;
+			}
+			if (possibleLink.getLinkName().equals(chest.getLinkName())) {
+				links.put(chest, possibleLink);
+				break;
+			}
+		}
+	}
 	/**
 	 * Unregisters a chest upon destruction.
 	 * If it is linked the linked inventory will be cleared
@@ -227,11 +267,8 @@ public class ChestHandler {
 			Set<LinkedChest> loadedChests = gson.fromJson(fileReader, new TypeToken<Set<LinkedChest>>(){}.getType());
 			
 			for (LinkedChest chest : loadedChests) {
-				String linkName = chest.getLinkName();
-				chest.setLinkName("");
-				
-				if (addChest(chest.getChest())) {
-					renameChest(chest, linkName);
+				if (addChest(chest)) {
+					linkChest(chest);
 				}
 			}
 		} catch (IOException e) {
@@ -254,6 +291,7 @@ public class ChestHandler {
 	
 	public void disable() {
 		chestSyncer.cancel();
+		particleSpawner.cancel();
 	}
 	
 	public void openRenameGUI(LinkedChest chest, Player player) {

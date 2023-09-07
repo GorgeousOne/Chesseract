@@ -38,7 +38,6 @@ public final class ChesseractPlugin extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		chestHandler.saveChests(SAVES_FILE_PATH);
 		chestHandler.disable();
 	}
 	

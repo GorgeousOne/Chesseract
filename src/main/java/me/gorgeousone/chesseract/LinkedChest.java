@@ -1,8 +1,8 @@
 package me.gorgeousone.chesseract;
 
 import me.gorgeousone.chesseract.util.BlockPos;
-import me.gorgeousone.chesseract.event.ChestRenameEvent;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 
@@ -23,7 +23,7 @@ public class LinkedChest {
 	}
 	
 	public BlockPos getPos() {
-		return pos;
+		return pos.clone();
 	}
 	
 	public Inventory getInventory() {
@@ -46,5 +46,43 @@ public class LinkedChest {
 	
 	public static String formatLinkName(String linkName) {
 		return linkName.replaceAll("[^a-zA-Z0-9\\-_]", "");
+	}
+	
+	public void spawnLinkedParticles(float dx, float dz) {
+		if (!pos.isChunkLoaded()) {
+			return;
+		}
+		Location loc = pos.getLocation().add(0.5, 0, 0.5);
+		for (int i = 0; i < 5; i++) {
+			loc.getWorld().spawnParticle(Particle.PORTAL, loc, 0, dx, 0f, dz, .75f);
+			loc.getWorld().spawnParticle(Particle.PORTAL, loc, 0, -dx, 0f, -dz, .75f);
+		}
+	}
+	/**
+	 * Spawns fancy particles around the ches IF it is in a loaded chunk
+	 */
+	public void spawnUnlinkedParticles() {
+		if (!pos.isChunkLoaded()) {
+			return;
+		}
+		Location loc = pos.getLocation().add(0.5, .75, 0.5);
+		loc.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, loc, 1, 0f, 0f, 0f, 0.5f);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof LinkedChest)) {
+			return false;
+		}
+		LinkedChest chest = (LinkedChest) o;
+		return pos.equals(chest.pos);
+	}
+	
+	@Override
+	public int hashCode() {
+		return pos.hashCode();
 	}
 }

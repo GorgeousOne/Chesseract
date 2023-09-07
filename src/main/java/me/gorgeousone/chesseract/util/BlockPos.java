@@ -68,6 +68,10 @@ public class BlockPos {
 		this.z = z;
 	}
 	
+	public boolean isChunkLoaded() {
+		return world.getChunkAt(x, z).isLoaded();
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {

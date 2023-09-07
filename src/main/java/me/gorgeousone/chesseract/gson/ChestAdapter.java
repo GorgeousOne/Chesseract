@@ -50,6 +50,8 @@ public class ChestAdapter extends TypeAdapter<LinkedChest> {
 		if (!(state instanceof Chest)) {
 			throw new IllegalArgumentException("Could not Chest chest from json. Block at " + pos + " is not a chest.");
 		}
-		return new LinkedChest((Chest) state);
+		LinkedChest chest = new LinkedChest((Chest) state);
+		chest.setLinkName(linkName);
+		return chest;
 	}
 }
