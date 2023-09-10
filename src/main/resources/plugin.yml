@@ -1,7 +1,7 @@
 name: Chesseract
 version: '${project.version}'
 main: me.gorgeousone.chesseract.ChesseractPlugin
-
+api-version: 1.13
 commands:
     chesseract:
         aliases: [ch]

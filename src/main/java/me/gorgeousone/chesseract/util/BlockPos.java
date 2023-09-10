@@ -1,5 +1,6 @@
 package me.gorgeousone.chesseract.util;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -68,8 +69,20 @@ public class BlockPos {
 		this.z = z;
 	}
 	
+	public Chunk getChunk() {
+		return world.getChunkAt(getChunkX(), getChunkZ());
+	}
+	
 	public boolean isChunkLoaded() {
-		return world.getChunkAt(x, z).isLoaded();
+		return world.isChunkLoaded(getChunkX(), getChunkZ());
+	}
+	
+	public int getChunkX() {
+		return x >> 4;
+	}
+	
+	public int getChunkZ() {
+		return z >> 4;
 	}
 	
 	@Override

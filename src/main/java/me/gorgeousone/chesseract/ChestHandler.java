@@ -11,6 +11,7 @@ import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -27,6 +28,10 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +42,8 @@ public class ChestHandler {
 	private final ChesseractPlugin chesseract;
 	private BukkitRunnable chestSyncer;
 	private BukkitRunnable particleSpawner;
+	private BukkitRunnable chunkUnloader;
+	private final Set<Chunk> forceLoadedChunks;
 	
 	private final Map<LinkedChest, ItemStack> syncAdditions;
 	private final Map<LinkedChest, ItemStack> syncRemovals;
@@ -48,11 +55,13 @@ public class ChestHandler {
 		this.chesseract = chesseract;
 		chests = new HashMap<>();
 		links = new DualHashBidiMap<>();
+		forceLoadedChunks = new HashSet<>();
 		
 		syncAdditions = new HashMap<>();
 		syncRemovals = new HashMap<>();
 		startChestSyncing();
 		startParticles();
+		startChunkUnloading();
 	}
 	
 	public void startChestSyncing() {
@@ -60,22 +69,71 @@ public class ChestHandler {
 			@Override
 			public void run() {
 				for (LinkedChest chest : syncAdditions.keySet()) {
-					chest.getInventory().addItem(syncAdditions.get(chest));
+					forceLoad(chest.getPos().getChunk());
+					chest.addItem(syncAdditions.get(chest));
 				}
 				for (LinkedChest chest : syncRemovals.keySet()) {
-					chest.getInventory().removeItem(syncRemovals.get(chest));
+					forceLoad(chest.getPos().getChunk());
+					chest.removeItem(syncRemovals.get(chest));
 				}
 				syncAdditions.clear();
 				syncRemovals.clear();
 			}
-			
 		};
 		chestSyncer.runTaskTimer(chesseract, 1, 1);
 	}
 	
+	private void forceLoad(Chunk chunk) {
+		chunk.setForceLoaded(true);
+		chunk.load();
+		forceLoadedChunks.add(chunk);
+	}
+	
+	public void startChunkUnloading() {
+		chunkUnloader = new BukkitRunnable() {
+			@Override
+			public void run() {
+				Iterator<Chunk> iterator = forceLoadedChunks.iterator();
+				long now = System.currentTimeMillis();
+				
+				while (iterator.hasNext()) {
+					Chunk chunk = iterator.next();
+					
+					boolean isChestActive = false;
+					
+					for (LinkedChest chest : getChestsInChunk(chunk)) {
+						if (now - chest.getLastItemTravelTime() < 10000) {
+							isChestActive = true;
+							break;
+						}
+					}
+					if (!isChestActive) {
+						chunk.setForceLoaded(false);
+						iterator.remove();
+					}
+				}
+			}
+		};
+		chunkUnloader.runTaskTimer(chesseract, 20, 20);
+	}
+	
+	public List<LinkedChest> getChestsInChunk(Chunk chunk) {
+		List<LinkedChest> chestsInChunk = new LinkedList<>();
+		int chunkX = chunk.getX();
+		int chunkZ = chunk.getZ();
+		
+		for (LinkedChest chest : chests.values()) {
+			BlockPos pos = chest.getPos();
+			if (pos.getChunkX() == chunkX && pos.getChunkZ() == chunkZ) {
+				chestsInChunk.add(chest);
+			}
+		}
+		return chestsInChunk;
+	}
+	
 	public void startParticles() {
 		particleSpawner = new BukkitRunnable() {
-			float second = 20;
+			final float second = 20;
 			float phi = 0;
 			@Override
 			public void run() {
@@ -244,6 +302,7 @@ public class ChestHandler {
 			return false;
 		}
 		if (syncRemovals.containsKey(chest)) {
+			System.out.println("CLOGGED " + link.getPos().getY());
 			return false;
 		}
 		syncRemovals.put(link, movedItem);
@@ -291,6 +350,7 @@ public class ChestHandler {
 	public void disable() {
 		chestSyncer.cancel();
 		particleSpawner.cancel();
+		chunkUnloader.cancel();
 	}
 	
 	public void openRenameGUI(LinkedChest chest, Player player) {

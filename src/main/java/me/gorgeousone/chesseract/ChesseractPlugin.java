@@ -102,6 +102,9 @@ public final class ChesseractPlugin extends JavaPlugin {
 		minerRecipe.setIngredient('#', Material.QUARTZ_BLOCK);
 		minerRecipe.setIngredient('o', Material.ENDER_PEARL);
 		minerRecipe.setIngredient('x', Material.ENDER_CHEST);
-		Bukkit.addRecipe(minerRecipe);
+		
+		try {
+			Bukkit.addRecipe(minerRecipe);
+		} catch (IllegalStateException ignore) {}
 	}
 }

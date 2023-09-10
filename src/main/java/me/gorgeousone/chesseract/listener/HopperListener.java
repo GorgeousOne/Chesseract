@@ -1,7 +1,6 @@
 package me.gorgeousone.chesseract.listener;
 
 
-import me.gorgeousone.chesseract.ChesseractPlugin;
 import me.gorgeousone.chesseract.ChestHandler;
 import me.gorgeousone.chesseract.LinkedChest;
 import org.bukkit.block.Chest;
@@ -28,13 +27,13 @@ public class HopperListener implements Listener {
 			LinkedChest chest = chestHandler.getChest((Chest) source.getHolder());
 			
 			if (chest != null) {
-				event.setCancelled(!chestHandler.suckChestItem(chest, item));
+				event.setCancelled(!chestHandler.suckChestItem(chest, item.clone()));
 			}
 		} else if (destination.getHolder() instanceof Chest) {
 			LinkedChest chest = chestHandler.getChest((Chest) destination.getHolder());
 			
 			if (chest != null) {
-				event.setCancelled(!chestHandler.funnelChestItem(chest, item));
+				event.setCancelled(!chestHandler.funnelChestItem(chest, item.clone()));
 			}
 		}
 	}

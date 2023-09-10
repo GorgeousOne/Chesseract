@@ -5,12 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class LinkedChest {
 	
 	private final BlockPos pos;
 	private String linkName;
-
+	private long lastItemTravelTime;
+	
 	public LinkedChest(Chest chest) {
 		this.pos = new BlockPos(chest.getBlock());
 		this.linkName = "";
@@ -26,6 +28,16 @@ public class LinkedChest {
 	 */
 	public Inventory getInventory() {
 		return ((Chest) pos.getBlock().getState()).getBlockInventory();
+	}
+	
+	public void addItem(ItemStack item) {
+		getInventory().addItem(item);
+		lastItemTravelTime = System.currentTimeMillis();
+	}
+	
+	public void removeItem(ItemStack item) {
+		getInventory().removeItem(item);
+		lastItemTravelTime = System.currentTimeMillis();
 	}
 	
 	/**
@@ -65,6 +77,10 @@ public class LinkedChest {
 		}
 		Location loc = pos.getLocation().add(0.5, .75, 0.5);
 		loc.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, loc, 1, 0f, 0f, 0f, 0.5f);
+	}
+	
+	public long getLastItemTravelTime() {
+		return lastItemTravelTime;
 	}
 	
 	@Override
